@@ -1,0 +1,54 @@
+name: PowerShell script
+author: Freddy Kristiansen
+permissions:
+  contents: write
+  pull-requests: write
+inputs:
+  shell:
+    description: Shell in which you want to run the action (powershell or pwsh)
+    required: false
+    default: powershell
+  actor:
+    description: The GitHub actor running the action
+    required: false
+    default: ${{ github.actor }}
+  token:
+    description: The GitHub token running the action
+    required: false
+    default: ${{ github.token }}
+  parentTelemetryScopeJson:
+    description: Specifies the parent telemetry scope for the telemetry signal
+    required: false
+    default: '7b7d'
+  environmentName:
+    description: Name of the online environment
+    required: true
+  adminCenterApiCredentials:
+    description: Admin center API credentials
+    required: false
+    default: ''
+  reUseExistingEnvironment:
+    description: Reuse environment if it exists
+    required: false
+    default: 'N'
+  directCommit:
+    description: Direct Commit (Y/N)
+    required: false
+    default: 'N'
+runs:
+  using: composite
+  steps:
+    - name: run
+      shell: ${{ inputs.shell }}
+      env:
+        _actor: ${{ inputs.actor }}
+        _token: ${{ inputs.token }}
+        _parentTelemetryScopeJson: ${{ inputs.parentTelemetryScopeJson }}
+        _environmentName: ${{ inputs.environmentName }}
+        _adminCenterApiCredentials: ${{ inputs.adminCenterApiCredentials }}
+        _reUseExistingEnvironment: ${{ inputs.reUseExistingEnvironment }}
+        _directCommit: ${{ inputs.directCommit }}
+      run: try { ${{ github.action_path }}/CreateDevelopmentEnvironment.ps1 -actor $ENV:_actor -token $ENV:_token -parentTelemetryScopeJson $ENV:_parentTelemetryScopeJson -environmentName $ENV:_environmentName -adminCenterApiCredentials $ENV:_adminCenterApiCredentials -reUseExistingEnvironment ($ENV:_reUseExistingEnvironment -eq 'Y') -directCommit ($ENV:_directCommit -eq 'Y') } catch { Write-Host "::Error::Unexpected error when running action ($($_.Exception.Message.Replace("`r",'').Replace("`n",' ')))"; exit 1 }
+branding:
+  icon: terminal
+  color: blue
