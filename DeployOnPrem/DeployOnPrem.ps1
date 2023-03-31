@@ -165,7 +165,8 @@ try {
                 $sync = $true
                 $install = $true
                 $upgrade = $true
-                $unPublishOldVersion = $true
+                #$unPublishOldVersion = $true
+                $unPublishOldVersion = $false
                 
                 $publishArgs = @{ "packageType" = $packageType }
                 if ($scope) {
