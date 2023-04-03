@@ -165,8 +165,7 @@ try {
                 $sync = $true
                 $install = $true
                 $upgrade = $true
-                #$unPublishOldVersion = $true
-                $unPublishOldVersion = $false
+                $unPublishOldVersion = $true
                 
                 $publishArgs = @{ "packageType" = $packageType }
                 if ($scope) {
@@ -235,7 +234,7 @@ try {
                         else {
                             $install = $false
                             if ($unPublishOldVersion) {
-                                $oldAppVersion = $navAppInfoFromDb.ExtensionDataVersion
+                                $oldAppVersion = $navAppInfoFromDb.Version
                             }
                         }
                     }
