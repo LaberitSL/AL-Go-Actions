@@ -165,8 +165,7 @@ try {
                 $sync = $true
                 $install = $true
                 $upgrade = $true
-                #$unPublishOldVersion = $true
-                $unPublishOldVersion = $false
+                $unPublishOldVersion = $true
                 
                 $publishArgs = @{ "packageType" = $packageType }
                 if ($scope) {
@@ -203,6 +202,23 @@ try {
                     }
                 }
                 
+                $unpublishIt = $false
+                if ($unPublishOldVersion) {
+                    $navAppInfo = Get-NAVAppInfo -Path $appFile
+                    $addArg = @{
+                        "tenantSpecificProperties" = $true
+                        "tenant"                   = $tenant
+                    }
+                    if ($packageType -eq "SymbolsOnly") {
+                        $addArg = @{ "SymbolsOnly" = $true }
+                    }
+                    $appInfo = (Get-NAVAppInfo -ServerInstance $serverInstance -Name $navAppInfo.Name -Publisher $navAppInfo.Publisher @addArg)                    
+                    if ($appInfo) {
+                        $unpublishIt = $true
+                        $oldAppVersion = $appInfo.Version
+                        Write-Host "Old version $($appInfo.Version) of $($navAppInfo.Name) is already published"
+                }
+                
                 if ($publishIt) {
                     Write-Host "Publishing $appFile"
                     Publish-NavApp -ServerInstance $ServerInstance -Path $appFile -SkipVerification:$SkipVerification @publishArgs
@@ -230,13 +246,9 @@ try {
                         $navAppInfoFromDb = Get-NAVAppInfo -ServerInstance $ServerInstance -Publisher $appPublisher -Name $appName -Version $appVersion -Tenant $tenant -TenantSpecificProperties
                         if ($null -eq $navAppInfoFromDb.ExtensionDataVersion -or $navAppInfoFromDb.ExtensionDataVersion -eq $navAppInfoFromDb.Version) {
                             $upgrade = $false
-                            $unPublishOldVersion = $false
                         }
                         else {
                             $install = $false
-                            if ($unPublishOldVersion) {
-                                $oldAppVersion = $navAppInfoFromDb.ExtensionDataVersion
-                            }
                         }
                     }
                 
@@ -260,9 +272,9 @@ try {
                         Start-NavAppDataUpgrade -ServerInstance $ServerInstance -Publisher $appPublisher -Name $appName -Version $appVersion -Tenant $tenant @languageArgs
                     }
 
-                    if ($unPublishOldVersion) {
+                    if ($unpublishIt) {
                         Write-Host "UnPublish old version $oldAppVersion of $appName on tenant $tenant"
-                        UnPublish-NavApp -ServerInstance $ServerInstance -Publisher $appPublisher -Name $appName -version $oldAppVersion
+                        UnPublish-NavApp -ServerInstance $ServerInstance -Publisher $appPublisher -Name $appName -version $oldAppVersion -Tenant $tenant
                     }
                 }
             }
