@@ -217,6 +217,7 @@ try {
                         $unpublishIt = $true
                         $oldAppVersion = $appInfo.Version
                         Write-Host "Old version $($appInfo.Version) of $($navAppInfo.Name) is already published"
+                    }
                 }
                 
                 if ($publishIt) {
