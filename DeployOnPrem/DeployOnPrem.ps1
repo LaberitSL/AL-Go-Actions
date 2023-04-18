@@ -274,8 +274,8 @@ try {
                     }
 
                     if ($unpublishIt) {
-                        Write-Host "UnPublish old version $oldAppVersion of $appName on tenant $tenant"
-                        UnPublish-NavApp -ServerInstance $ServerInstance -Publisher $appPublisher -Name $appName -version $oldAppVersion -Tenant $tenant
+                        Write-Host "UnPublish old version $oldAppVersion of $appName"
+                        UnPublish-NavApp -ServerInstance $ServerInstance -Publisher $appPublisher -Name $appName -version $oldAppVersion
                     }
                 }
             }
